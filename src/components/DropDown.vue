@@ -11,7 +11,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
+import useClickOutSide from '@/hooks/useClickOutSide'
 
 export default defineComponent({
   name: 'DropDown',
@@ -24,7 +25,7 @@ export default defineComponent({
   setup () {
     const isOpen = ref(false)
     // 定义下拉标签
-    const dropdownRef = ref<null|HTMLElement>(null)
+    const dropdownRef = ref<null | HTMLElement>(null)
     /**
      * 切换下拉框
      */
