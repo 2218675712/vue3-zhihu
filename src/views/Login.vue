@@ -27,13 +27,15 @@
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ValidateInput, { RulesProp } from '@/components/ValidateInput.vue'
 import ValidateForm from '@/components/ValidateForm.vue'
-import { ref } from 'vue'
 export default {
   name: 'Login',
 
   setup () {
+    const router = useRouter()
     const inputRef = ref<any>()
     const emailVal = ref('')
     const emailRules: RulesProp = [
@@ -45,8 +47,13 @@ export default {
       { type: 'required', message: '密码不能为空' },
       { type: 'password', message: '只能由数字，字母组成，不能有特殊符号,并且长度限制在8-12位' }
     ]
+    /**
+     * 表单验证结果
+     * @param result 结果是成功还是失败
+     */
     const onFormSubmit = (result: boolean) => {
-      console.log(inputRef.value.validateInput())
+      console.log(result)
+      // router.push({ name: 'column', params: { id: 1 } })
     }
     return {
       emailRules,
