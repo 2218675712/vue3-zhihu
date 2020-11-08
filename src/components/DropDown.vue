@@ -34,23 +34,14 @@ export default defineComponent({
     }
     /**
      * 处理点击事件
-     * 点击下面自动关闭下拉框
-     * @param e Element标签
+     * 点击外面自动关闭下拉框
      */
-    const handler = (e: MouseEvent) => {
-      // 判断是否有值
-      if (dropdownRef.value) {
-        if (!dropdownRef.value.contains(e.target as HTMLElement) && isOpen.value) {
-          isOpen.value = false
-        }
+    const isClickOutside = useClickOutSide(dropdownRef)
+
+    watch(isClickOutside, () => {
+      if (isOpen.value && isClickOutside.value) {
+        isOpen.value = false
       }
-    }
-    onMounted(() => {
-      // 监听点击事件调用下拉框处理函数
-      document.addEventListener('click', handler)
-    })
-    onUnmounted(() => {
-      document.removeEventListener('click', handler)
     })
     return {
       isOpen,
