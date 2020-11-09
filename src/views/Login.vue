@@ -20,7 +20,7 @@
           ref="inputRef"></validate-input>
       </div>
       <template #submit>
-        <span class="btn btn-danger">Submit</span>
+        <button type="submit" class="btn btn-primary btn-block btn-large">登录</button>
       </template>
     </validate-form>
   </div>
@@ -31,10 +31,12 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ValidateInput, { RulesProp } from '@/components/ValidateInput.vue'
 import ValidateForm from '@/components/ValidateForm.vue'
+import { useStore } from 'vuex'
 export default {
   name: 'Login',
 
   setup () {
+    const store = useStore()
     const router = useRouter()
     const inputRef = ref<any>()
     const emailVal = ref('')
@@ -52,8 +54,10 @@ export default {
      * @param result 结果是成功还是失败
      */
     const onFormSubmit = (result: boolean) => {
-      console.log(result)
-      // router.push({ name: 'column', params: { id: 1 } })
+      if (result) {
+        router.push('/')
+        store.commit('login')
+      }
     }
     return {
       emailRules,

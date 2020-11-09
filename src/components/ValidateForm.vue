@@ -1,8 +1,7 @@
 <template>
   <form class="validate-form-container">
-    <slot name="default">
       <!--    default加载默认的内容 除了template里面的-->
-    </slot>
+    <slot name="default"></slot>
     <div class="submit-area" @click.prevent="submitForm">
       <slot name="submit">
         <button type="submit" class="btn btn-primary">提交</button>
@@ -14,7 +13,7 @@
 <script lang="ts">
 import { defineComponent, onUnmounted } from 'vue'
 import mitt from 'mitt'
-type ValidateFunc=() => boolean
+type ValidateFunc = () => boolean
 export const emitter = mitt()
 export default defineComponent({
   name: 'ValidateForm',
@@ -35,7 +34,6 @@ export default defineComponent({
       }
     }
     emitter.on('form-item-created', callback)
-    // 清空函数
     onUnmounted(() => {
       emitter.off('form-item-created', callback)
       funcArr = []

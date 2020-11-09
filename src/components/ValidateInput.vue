@@ -3,7 +3,7 @@
     <input
       class="form-control"
       :class="{'is-invalid':inputRef.error}"
-      :value="inputRef.val"
+      v-model="inputRef.val"
       @input="updateValue"
       @blur="validateInput"
       v-bind="$attrs">
@@ -81,7 +81,7 @@ export default defineComponent({
     }
     onMounted(() => {
       // 向上面组件传递
-      emitter.emit('form-ite-created', validateInput)
+      emitter.emit('form-item-created', validateInput)
     })
     return {
       inputRef,

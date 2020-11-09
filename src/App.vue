@@ -17,15 +17,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useStore } from 'vuex'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import GlobalHeader, { UserProps } from '@/components/GlobalHeader.vue'
-
-const currentUser: UserProps = {
-  isLogin: false,
-  name: '彼岸',
-  id: 1
-}
+import GlobalHeader from '@/components/GlobalHeader.vue'
 
 export default defineComponent({
   name: 'App',
@@ -33,6 +28,8 @@ export default defineComponent({
     GlobalHeader
   },
   setup () {
+    const store = useStore()
+    const currentUser = computed(() => store.state.user)
     return {
       currentUser
     }
