@@ -22,9 +22,22 @@ export default createStore<GlobalDataProps>({
     }
   },
   mutations: {
-    login (store) {
-      store.user = { ...store.user, isLogin: true, name: '彼岸' }
+    login (state) {
+      state.user = { ...state.user, isLogin: true, name: '彼岸' }
     }
+  },
+  getters: {
+    biggerColumnLen (state) {
+      return state.columns.filter(c => c.id > 2).length
+    },
+    getColumnById: (state) => (id: number) => {
+      return state.columns.find(c => c.id === id)
+    },
+
+    getPostsById: (state) => (cid: number) => {
+      return state.posts.find(post => post.columnId === cid)
+    }
+
   },
   actions: {},
   modules: {}

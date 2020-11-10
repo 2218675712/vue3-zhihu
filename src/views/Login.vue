@@ -38,7 +38,6 @@ export default {
   setup () {
     const store = useStore()
     const router = useRouter()
-    const inputRef = ref<any>()
     const emailVal = ref('')
     const emailRules: RulesProp = [
       { type: 'required', message: '电子邮箱地址不能为空' },
@@ -64,8 +63,7 @@ export default {
       emailVal,
       passwordVal,
       passwordRules,
-      onFormSubmit,
-      inputRef
+      onFormSubmit
     }
   },
   components: {
