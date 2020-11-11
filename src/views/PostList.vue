@@ -16,9 +16,9 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
-import { PostProps } from '@/testData'
-export default {
+import { PropType, defineComponent } from 'vue'
+import { PostProps } from '@/store'
+export default defineComponent({
   name: 'PostList',
   props: {
     list: {
@@ -26,7 +26,7 @@ export default {
       type: Array as PropType<PostProps[]>
     }
   }
-}
+})
 </script>
 
 <style scoped>

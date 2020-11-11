@@ -1,13 +1,23 @@
 <template>
   <div class="validate-input-container pb-3">
     <input
+      v-if="tag!='textarea'"
       class="form-control"
       :class="{'is-invalid':inputRef.error}"
       v-model="inputRef.val"
       @input="updateValue"
       @blur="validateInput"
-      v-bind="$attrs">
-<!--    使用 v-bind 缩写来完成将所有非 prop attribute 应用于 input 元素而不是根 div 元素-->
+      v-bind="$attrs"/>
+    <textarea
+      v-else
+      class="form-control"
+      :class="{'is-invalid':inputRef.error}"
+      v-model="inputRef.val"
+      @input="updateValue"
+      @blur="validateInput"
+      v-bind="$attrs"
+      rows="10"></textarea>
+    <!--    使用 v-bind 缩写来完成将所有非 prop attribute 应用于 input 元素而不是根 div 元素-->
     <span
       v-if="inputRef.error"
       class="invalid-feedback">{{ inputRef.message }}</span>
@@ -15,23 +25,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, onMounted } from 'vue'
+import { defineComponent, onMounted, PropType, reactive } from 'vue'
 import { emitter } from './ValidateForm.vue'
 
 const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
 const passwordReg = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}$/
 
 interface RuleProp {
-  type: 'required' | 'email'|'password';
+  type: 'required' | 'email' | 'password';
   message: string;
 }
 
 export type RulesProp = RuleProp[]
+export type TagType = 'input' | 'textarea'
 export default defineComponent({
   name: 'ValidateInput',
   props: {
     rules: Array as PropType<RulesProp>,
-    modelValue: String
+    modelValue: String,
+    tag: {
+      type: String as PropType<TagType>,
+      default: 'input'
+    }
   },
   // 禁用 Attribute 继承
   inheritAttrs: false,

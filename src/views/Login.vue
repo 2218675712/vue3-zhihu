@@ -27,12 +27,12 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import ValidateInput, { RulesProp } from '@/components/ValidateInput.vue'
 import ValidateForm from '@/components/ValidateForm.vue'
 import { useStore } from 'vuex'
-export default {
+export default defineComponent({
   name: 'Login',
 
   setup () {
@@ -70,7 +70,7 @@ export default {
     ValidateForm,
     ValidateInput
   }
-}
+})
 </script>
 
 <style scoped>

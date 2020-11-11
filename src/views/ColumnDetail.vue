@@ -19,11 +19,11 @@
 import { useRoute } from 'vue-router'
 
 import PostList from '@/views/PostList.vue'
-import { computed } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from '@/store'
 
-export default {
+export default defineComponent({
   name: 'ColumnDetail',
   components: { PostList },
   setup () {
@@ -38,7 +38,7 @@ export default {
       list
     }
   }
-}
+})
 </script>
 
 <style scoped>
