@@ -1,3 +1,5 @@
+/*
+
 export interface ColumnProps {
   id: number;
   title: string;
@@ -64,3 +66,4 @@ export const testPosts: PostProps[] = [
     columnId: 1
   }
 ]
+*/

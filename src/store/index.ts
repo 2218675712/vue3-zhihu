@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
-import { ColumnProps, PostProps, testData, testPosts } from '@/testData'
-export { ColumnProps, PostProps } from '@/testData'
+// import {testData, testPosts} from '@/testData'
+import axios from 'axios'
 
 interface UserProps {
   isLogin: boolean;
@@ -9,23 +9,38 @@ interface UserProps {
   columnId: number;
 }
 
+interface ImageProps {
+  _id?: string;
+  url?: string;
+  createdAt?: string;
+}
+
+export interface ColumnProps {
+  _id: string;
+  title: string;
+  avatar?: ImageProps;
+  description: string;
+}
+
+export interface PostProps {
+  id: number;
+  title: string;
+  content: string;
+  image?: string;
+  createdAt: string;
+  columnId: number;
+}
+
 export interface GlobalDataProps {
   columns: ColumnProps[];
   posts: PostProps[];
   user: UserProps;
 }
-export const arrToObj = <T extends { id?: string }>(arr: Array<T>) => {
-  return arr.reduce((prev, current) => {
-    if (current.id) {
-      prev[current.id] = current
-    }
-    return prev
-  }, {} as { [key: string]: T })
-}
+
 export default createStore<GlobalDataProps>({
   state: {
-    columns: testData,
-    posts: testPosts,
+    columns: [],
+    posts: [],
     user: {
       isLogin: true,
       name: '彼岸',
@@ -34,23 +49,37 @@ export default createStore<GlobalDataProps>({
   },
   mutations: {
     login (state) {
-      state.user = { ...state.user, isLogin: true, name: '彼岸' }
+      state.user = {
+        ...state.user,
+        isLogin: true,
+        name: '彼岸'
+      }
     },
     createPost (state, newPost) {
       state.posts.push(newPost)
+    },
+    fetchColumns (state, rawData) {
+      state.columns = rawData.data.list
     }
   },
   getters: {
 
-    getColumnById: (state) => (id: number) => {
-      return state.columns.find(c => c.id === id)
+    getColumnById: (state) => (id: string) => {
+      return state.columns.find(c => c._id === id)
     },
 
-    getPostsById: (state) => (cid: number) => {
+    getPostsByCId: (state) => (cid: number) => {
       return state.posts.filter(post => post.columnId === cid)
     }
 
   },
-  actions: {},
+  actions: {
+    // 用于异步
+    fetchColumns (context) {
+      axios.get('/api/columns').then(resp => {
+        context.commit('fetchColumns', resp.data)
+      })
+    }
+  },
   modules: {}
 })
