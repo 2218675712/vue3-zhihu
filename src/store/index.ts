@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-// import {testData, testPosts} from '@/testData'
+// import { testPosts } from '@/testData'
 import axios from 'axios'
 
 interface UserProps {
@@ -23,12 +23,13 @@ export interface ColumnProps {
 }
 
 export interface PostProps {
-  id: number;
+  _id: string;
   title: string;
-  content: string;
-  image?: string;
+  excerpt?: string;
+  content?: string;
+  image?: ImageProps;
   createdAt: string;
-  columnId: number;
+  column: string;
 }
 
 export interface GlobalDataProps {
@@ -60,6 +61,12 @@ export default createStore<GlobalDataProps>({
     },
     fetchColumns (state, rawData) {
       state.columns = rawData.data.list
+    },
+    fetchColumn (state, rawData) {
+      state.columns = [rawData.data]
+    },
+    fetchPost (state, rawData) {
+      state.posts = rawData.data.list
     }
   },
   getters: {
@@ -68,8 +75,8 @@ export default createStore<GlobalDataProps>({
       return state.columns.find(c => c._id === id)
     },
 
-    getPostsByCId: (state) => (cid: number) => {
-      return state.posts.filter(post => post.columnId === cid)
+    getPostsByCId: (state) => (cid: string) => {
+      return state.posts.filter(post => post.column === cid)
     }
 
   },
@@ -78,6 +85,16 @@ export default createStore<GlobalDataProps>({
     fetchColumns (context) {
       axios.get('/api/columns').then(resp => {
         context.commit('fetchColumns', resp.data)
+      })
+    },
+    fetchColumn ({ commit }, cid) {
+      axios.get(`/api/columns/${cid}`).then(resp => {
+        commit('fetchColumn', resp.data)
+      })
+    },
+    fetchPost ({ commit }, cid) {
+      axios.get(`/api/columns/${cid}/posts`).then(resp => {
+        commit('fetchPost', resp.data)
       })
     }
   },

@@ -19,7 +19,7 @@
 import { useRoute } from 'vue-router'
 
 import PostList from '@/views/PostList.vue'
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from '@/store'
 
@@ -29,7 +29,11 @@ export default defineComponent({
   setup () {
     const store = useStore<GlobalDataProps>()
     const route = useRoute()
-    const currentId = route.params._id
+    const currentId = route.params.id
+    onMounted(() => {
+      store.dispatch('fetchColumn', currentId)
+      store.dispatch('fetchPost', currentId)
+    })
     const column = computed(() => store.getters.getColumnById(currentId))
     const list = computed(() => store.getters.getPostsByCId(currentId))
     return {
