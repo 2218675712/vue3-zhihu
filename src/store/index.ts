@@ -1,5 +1,4 @@
-import { createStore } from 'vuex'
-// import { testPosts } from '@/testData'
+import { createStore, Commit } from 'vuex'
 import axios from 'axios'
 
 interface UserProps {
@@ -36,10 +35,22 @@ export interface GlobalDataProps {
   columns: ColumnProps[];
   posts: PostProps[];
   user: UserProps;
+  loading: boolean;
 }
 
+/**
+ * 获取并向mutations提交数据
+ * @param url 链接url
+ * @param mutationName  mutation函数名
+ * @param commit  提交类型
+ */
+const getAndcommit = async (url: string, mutationName: string, commit: Commit) => {
+  const { data } = await axios.get(url)
+  commit(mutationName, data)
+}
 export default createStore<GlobalDataProps>({
   state: {
+    loading: false,
     columns: [],
     posts: [],
     user: {
@@ -67,6 +78,9 @@ export default createStore<GlobalDataProps>({
     },
     fetchPost (state, rawData) {
       state.posts = rawData.data.list
+    },
+    setLoading (state, status) {
+      state.loading = status
     }
   },
   getters: {
@@ -80,22 +94,20 @@ export default createStore<GlobalDataProps>({
     }
 
   },
+  // 用于异步
   actions: {
-    // 用于异步
-    fetchColumns (context) {
-      axios.get('/api/columns').then(resp => {
-        context.commit('fetchColumns', resp.data)
-      })
+    fetchColumns ({ commit }) {
+      /*
+      const { data } = await axios.get('/api/columns')
+      commit('fetchColumns', data)
+      */
+      getAndcommit('/api/columns', 'fetchColumns', commit)
     },
     fetchColumn ({ commit }, cid) {
-      axios.get(`/api/columns/${cid}`).then(resp => {
-        commit('fetchColumn', resp.data)
-      })
+      getAndcommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
     fetchPost ({ commit }, cid) {
-      axios.get(`/api/columns/${cid}/posts`).then(resp => {
-        commit('fetchPost', resp.data)
-      })
+      getAndcommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
     }
   },
   modules: {}
