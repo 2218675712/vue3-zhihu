@@ -45,8 +45,9 @@ export default defineComponent({
     ]
     const passwordVal = ref('')
     const passwordRules: RulesProp = [
-      { type: 'required', message: '密码不能为空' },
-      { type: 'password', message: '只能由数字，字母组成，不能有特殊符号,并且长度限制在8-12位' }
+      { type: 'required', message: '密码不能为空' }
+      /*      ,
+      { type: 'password', message: '只能由数字，字母组成，不能有特殊符号,并且长度限制在8-12位' } */
     ]
     /**
      * 表单验证结果
@@ -54,8 +55,14 @@ export default defineComponent({
      */
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        router.push('/')
-        store.commit('login')
+        const payload = {
+          email: emailVal.value,
+          password: passwordVal.value
+        }
+        store.dispatch('loginAndFetch', payload).then(data => {
+          console.log(data)
+          router.push('/')
+        })
       }
     }
     return {

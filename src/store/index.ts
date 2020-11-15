@@ -1,11 +1,12 @@
-import { createStore, Commit } from 'vuex'
+import { createStore, Commit, ActionPayload } from 'vuex'
 import axios from 'axios'
 
-interface UserProps {
+export interface UserProps {
   isLogin: boolean;
-  name?: string;
-  id?: number;
-  columnId: number;
+  nickName?: string;
+  _id?: string;
+  column?: string;
+  email?: string;
 }
 
 interface ImageProps {
@@ -32,6 +33,7 @@ export interface PostProps {
 }
 
 export interface GlobalDataProps {
+  token: string;
   columns: ColumnProps[];
   posts: PostProps[];
   user: UserProps;
@@ -39,32 +41,58 @@ export interface GlobalDataProps {
 }
 
 /**
- * 获取并向mutations提交数据
+ * 获取并向mutations提交get数据
  * @param url 链接url
  * @param mutationName  mutation函数名
  * @param commit  提交类型
  */
-const getAndcommit = async (url: string, mutationName: string, commit: Commit) => {
+const getAndCommit = async (url: string, mutationName: string, commit: Commit) => {
   const { data } = await axios.get(url)
   commit(mutationName, data)
 }
+/**
+ * 向mutations提交post数据
+ * @param url 链接url
+ * @param mutationName  mutation函数名
+ * @param commit  提交类型
+ * @param payload 请求参数
+ */
+const postAndCommit = async (url: string, mutationName: string, commit: Commit, payload: ActionPayload) => {
+  const { data } = await axios.post(url, payload)
+  commit(mutationName, data)
+  return data
+}
 export default createStore<GlobalDataProps>({
   state: {
+    token: '',
     loading: false,
     columns: [],
     posts: [],
     user: {
-      isLogin: true,
-      name: '彼岸',
-      columnId: 1
+      isLogin: false
     }
   },
   mutations: {
+    /*
     login (state) {
       state.user = {
         ...state.user,
         isLogin: true,
         name: '彼岸'
+      }
+    },
+
+     */
+    login (state, rawData) {
+      const { token } = rawData.data
+      state.token = rawData.data.token
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`
+    },
+    fetchPostUser (state, rawData) {
+      console.log(rawData)
+      state.user = {
+        isLogin: true,
+        ...rawData.data
       }
     },
     createPost (state, newPost) {
@@ -101,13 +129,24 @@ export default createStore<GlobalDataProps>({
       const { data } = await axios.get('/api/columns')
       commit('fetchColumns', data)
       */
-      getAndcommit('/api/columns', 'fetchColumns', commit)
+      getAndCommit('/api/columns', 'fetchColumns', commit)
     },
     fetchColumn ({ commit }, cid) {
-      getAndcommit(`/api/columns/${cid}`, 'fetchColumn', commit)
+      getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
     fetchPost ({ commit }, cid) {
-      getAndcommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
+      getAndCommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
+    },
+    fetchCurrentUser ({ commit }) {
+      getAndCommit('/api/user/current', 'fetchPostUser', commit)
+    },
+    login ({ commit }, payload) {
+      return postAndCommit('/api/user/login', 'login', commit, payload)
+    },
+    loginAndFetch ({ dispatch }, loginData) {
+      return dispatch('login', loginData).then(() => {
+        return dispatch('fetchCurrentUser')
+      })
     }
   },
   modules: {}
