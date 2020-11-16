@@ -1,4 +1,4 @@
-import { createStore, Commit, ActionPayload } from 'vuex'
+import { ActionPayload, Commit, createStore } from 'vuex'
 import axios from 'axios'
 
 export interface UserProps {
@@ -32,7 +32,13 @@ export interface PostProps {
   column: string;
 }
 
+export interface GlobalErrorProps {
+  status: boolean;
+  message?: string;
+}
+
 export interface GlobalDataProps {
+  error: GlobalErrorProps;
   token: string;
   columns: ColumnProps[];
   posts: PostProps[];
@@ -64,6 +70,7 @@ const postAndCommit = async (url: string, mutationName: string, commit: Commit, 
 }
 export default createStore<GlobalDataProps>({
   state: {
+    error: { status: false },
     token: localStorage.getItem('token') || '',
     loading: false,
     columns: [],
@@ -73,16 +80,6 @@ export default createStore<GlobalDataProps>({
     }
   },
   mutations: {
-    /*
-    login (state) {
-      state.user = {
-        ...state.user,
-        isLogin: true,
-        name: '彼岸'
-      }
-    },
-
-     */
     login (state, rawData) {
       const { token } = rawData.data
       state.token = rawData.data.token
@@ -110,6 +107,9 @@ export default createStore<GlobalDataProps>({
     },
     setLoading (state, status) {
       state.loading = status
+    },
+    setError (state, e: GlobalErrorProps) {
+      state.error = e
     }
   },
   getters: {
