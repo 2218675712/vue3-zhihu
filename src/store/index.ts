@@ -64,7 +64,7 @@ const postAndCommit = async (url: string, mutationName: string, commit: Commit, 
 }
 export default createStore<GlobalDataProps>({
   state: {
-    token: '',
+    token: localStorage.getItem('token') || '',
     loading: false,
     columns: [],
     posts: [],
@@ -86,6 +86,7 @@ export default createStore<GlobalDataProps>({
     login (state, rawData) {
       const { token } = rawData.data
       state.token = rawData.data.token
+      localStorage.setItem('token', token)
       axios.defaults.headers.common.Authorization = `Bearer ${token}`
     },
     fetchPostUser (state, rawData) {
