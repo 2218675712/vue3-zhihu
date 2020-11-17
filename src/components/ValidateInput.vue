@@ -32,8 +32,9 @@ const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
 const passwordReg = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}$/
 
 interface RuleProp {
-  type: 'required' | 'email' | 'password';
+  type: 'required' | 'email' | 'password'|'custom';
   message: string;
+  validator?: () => boolean;
 }
 
 export type RulesProp = RuleProp[]
@@ -83,6 +84,9 @@ export default defineComponent({
               break
             case 'password':
               passed = passwordReg.test(inputRef.val)
+              break
+            case 'custom':
+              passed = rule.validator ? rule.validator() : true
               break
             default:
               break

@@ -3,6 +3,7 @@ import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import ColumnDetail from '@/views/ColumnDetail.vue'
 import CreatePost from '@/views/CreatePost.vue'
+import Signup from '@/views/Signup.vue'
 import store from '@/store/index'
 
 const routes: Array<RouteRecordRaw> = [
@@ -17,6 +18,10 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       redirectAlreadyLogin: true
     }
+  }, {
+    path: '/signup',
+    name: 'signup',
+    component: Signup
   }, {
     path: '/column/:id',
     name: 'column',
@@ -33,13 +38,13 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(),
-
   routes
 })
 router.beforeEach((to, from, next) => {
   // 没有登录
   if (to.meta.requiredLogin && !store.state.user.isLogin) {
     next({ name: 'login' })
+    // 登录在访问登录页面跳转到跟页面
   } else if (to.meta.redirectAlreadyLogin && store.state.user.isLogin) {
     next('/')
   } else {
