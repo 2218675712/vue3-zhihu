@@ -8,6 +8,8 @@ import App from './App.vue'
 // 添加请求拦截器
 axios.interceptors.request.use(config => {
   store.commit('setLoading', true)
+  // 重置错误状态
+  store.commit('setError', { status: false, message: '' })
   // 在发送请求之前做些什么
   return config
 })
@@ -19,7 +21,6 @@ axios.interceptors.response.use(config => {
 }, e => {
   // 处理错误
   const { error } = e.response.data
-  console.log(e.response.data.error)
   store.commit('setError', { status: true, message: error })
   store.commit('setLoading', false)
   return Promise.reject(error)

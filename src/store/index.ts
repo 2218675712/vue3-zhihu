@@ -87,7 +87,6 @@ export default createStore<GlobalDataProps>({
       axios.defaults.headers.common.Authorization = `Bearer ${token}`
     },
     fetchPostUser (state, rawData) {
-      console.log(rawData)
       state.user = {
         isLogin: true,
         ...rawData.data
