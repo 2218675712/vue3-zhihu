@@ -1,5 +1,9 @@
 import { onMounted, onUnmounted, Ref, ref } from 'vue'
 
+/**
+ * 判断点击内外事件
+ * @param elementRef
+ */
 const useClickOutSide = (elementRef: Ref<null | HTMLElement>) => {
   const isClickOutside = ref(false)
   const handler = (e: MouseEvent) => {

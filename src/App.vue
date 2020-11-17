@@ -15,6 +15,7 @@
           </ul>
         </small>
       </footer>
+      <message type="error" :message="error.message" v-if="error.status"></message>
     </div>
 </template>
 
@@ -24,12 +25,14 @@ import { useStore } from 'vuex'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import Loader from '@/components/Loader.vue'
+import Message from '@/components/Message.vue'
 import { GlobalDataProps } from './store'
 import axios from 'axios'
 
 export default defineComponent({
   name: 'App',
   components: {
+    Message,
     GlobalHeader,
     Loader
   },
