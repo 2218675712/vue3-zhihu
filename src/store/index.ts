@@ -9,7 +9,7 @@ export interface UserProps {
   email?: string;
 }
 
-interface ImageProps {
+export interface ImageProps {
   _id?: string;
   url?: string;
   createdAt?: string;
@@ -46,6 +46,12 @@ export interface GlobalDataProps {
   loading: boolean;
 }
 
+export interface ResponseType<P = {}> {
+  code: number;
+  msg: string;
+  data: P;
+}
+
 /**
  * 获取并向mutations提交get数据
  * @param url 链接url
@@ -55,6 +61,7 @@ export interface GlobalDataProps {
 const getAndCommit = async (url: string, mutationName: string, commit: Commit) => {
   const { data } = await axios.get(url)
   commit(mutationName, data)
+  return data
 }
 /**
  * 向mutations提交post数据
@@ -125,20 +132,16 @@ export default createStore<GlobalDataProps>({
   // 用于异步
   actions: {
     fetchColumns ({ commit }) {
-      /*
-      const { data } = await axios.get('/api/columns')
-      commit('fetchColumns', data)
-      */
-      getAndCommit('/api/columns', 'fetchColumns', commit)
+      return getAndCommit('/api/columns', 'fetchColumns', commit)
     },
     fetchColumn ({ commit }, cid) {
-      getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
+      return getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
     fetchPost ({ commit }, cid) {
-      getAndCommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
+      return getAndCommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
     },
     fetchCurrentUser ({ commit }) {
-      getAndCommit('/api/user/current', 'fetchPostUser', commit)
+      return getAndCommit('/api/user/current', 'fetchPostUser', commit)
     },
     login ({ commit }, payload) {
       return postAndCommit('/api/user/login', 'login', commit, payload)

@@ -24,7 +24,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import Loader from '@/components/Loader.vue'
 import { GlobalDataProps } from './store'
-import axios from 'axios'
 import createMessage from '@/components/createMessage'
 
 export default defineComponent({
@@ -37,17 +36,7 @@ export default defineComponent({
     const store = useStore<GlobalDataProps>()
     const currentUser = computed(() => store.state.user)
     const isLoading = computed(() => store.state.loading)
-    const token = computed(() => store.state.token)
     const error = computed(() => store.state.error)
-    onMounted(() => {
-      /**
-       * 自动登录
-       */
-      if (!currentUser.value.isLogin && token.value) {
-        axios.defaults.headers.common.Authorization = `Bearer ${token.value}`
-        store.dispatch('fetchCurrentUser')
-      }
-    })
     watch(() => error.value.status, () => {
       const { status, message } = error.value
       // 如果错误存在并且有提示

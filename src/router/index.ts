@@ -5,6 +5,7 @@ import ColumnDetail from '@/views/ColumnDetail.vue'
 import CreatePost from '@/views/CreatePost.vue'
 import Signup from '@/views/Signup.vue'
 import store from '@/store/index'
+import axios from 'axios'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -41,14 +42,40 @@ const router = createRouter({
   routes
 })
 router.beforeEach((to, from, next) => {
+  const { user, token } = store.state
+  const { requiredLogin, redirectAlreadyLogin } = to.meta
   // 没有登录
-  if (to.meta.requiredLogin && !store.state.user.isLogin) {
-    next({ name: 'login' })
-    // 登录在访问登录页面跳转到跟页面
-  } else if (to.meta.redirectAlreadyLogin && store.state.user.isLogin) {
-    next('/')
+  if (!user.isLogin) {
+    // 有token
+    if (token) {
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`
+      store.dispatch('fetchCurrentUser').then(() => {
+        if (redirectAlreadyLogin) {
+          next('/')
+        } else {
+          next()
+        }
+      }).catch(error => {
+        // 说明token失效
+        console.log(error)
+        localStorage.removeItem('token')
+        next('login')
+      })
+    } else {
+      // 没有token
+      if (requiredLogin) {
+        next('login')
+      } else {
+        next()
+      }
+    }
   } else {
-    next()
+    // 已经登录
+    if (redirectAlreadyLogin) {
+      next('/')
+    } else {
+      next()
+    }
   }
 })
 export default router
