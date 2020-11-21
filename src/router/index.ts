@@ -58,7 +58,7 @@ router.beforeEach((to, from, next) => {
       }).catch(error => {
         // 说明token失效
         console.log(error)
-        localStorage.removeItem('token')
+        store.commit('logout')
         next('login')
       })
     } else {
