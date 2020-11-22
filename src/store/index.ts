@@ -13,6 +13,8 @@ export interface ImageProps {
   _id?: string;
   url?: string;
   createdAt?: string;
+  // 不知道有没有
+  fitUrl?: string;
 }
 
 export interface ColumnProps {
@@ -23,13 +25,14 @@ export interface ColumnProps {
 }
 
 export interface PostProps {
-  _id: string;
+  _id?: string;
   title: string;
   excerpt?: string;
   content?: string;
-  image?: ImageProps;
-  createdAt: string;
+  image?: ImageProps|string;
+  createdAt?: string;
   column: string;
+  author?: string;
 }
 
 export interface GlobalErrorProps {
@@ -150,6 +153,9 @@ export default createStore<GlobalDataProps>({
     },
     login ({ commit }, payload) {
       return postAndCommit('/api/user/login', 'login', commit, payload)
+    },
+    createPost ({ commit }, payload) {
+      return postAndCommit('/api/posts', 'CreatePost', commit, payload)
     },
     loginAndFetch ({ dispatch }, loginData) {
       return dispatch('login', loginData).then(() => {

@@ -70,9 +70,8 @@ export default defineComponent({
       { type: 'required', message: '昵称不能为空' }
     ]
     const passwordRules: RulesProp = [
-      { type: 'required', message: '电子邮箱地址不能为空' }
-      /*      ,
-      { type: 'password', message: '只能由数字，字母组成，不能有特殊符号,并且长度限制在8-12位' } */
+      { type: 'required', message: '电子邮箱地址不能为空' },
+      { type: 'password', message: '只能由数字，字母组成，不能有特殊符号,并且长度限制在8-12位' }
     ]
     const repeatPasswordRules: RulesProp = [
       { type: 'required', message: '重复密码不能为空' },
