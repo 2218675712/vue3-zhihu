@@ -1,4 +1,4 @@
-import { ColumnProps } from '@/store'
+import { ColumnProps, UserProps } from '@/store'
 export function generateFitUrl (column: ColumnProps, width: number, height: number) {
   if (column.avatar) {
     column.avatar.fitUrl = column.avatar.url + `?x-oss-process=image/resize,m_pad,h_${width},w_${height}`

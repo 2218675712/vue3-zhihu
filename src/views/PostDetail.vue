@@ -5,16 +5,9 @@
       <h2 class="mb-4">{{ currentPost.title }}</h2>
       <div class="user-profile-component border-top border-bottom py-3 mb-5 align-items-center row g-0">
         <div class="col">
-<!--          todo 封装头像组件-->
-          <div class="d-flex align-items-center">
-            <img :src="currentPost.author.avatar.url" class="rounded-circle img-thumbnail">
-            <div class="detail ml-2">
-              <h6 class="d-block mb-0">{{ currentPost.author.nickName }}</h6>
-              <span class="text-truncate text-muted d-block">{{ currentPost.author.description }}</span>
-            </div>
-          </div>
+          <user-profile :user="currentPost.author"></user-profile>
         </div>
-        <span class="text-muted col text-right font-italic">发表于：{{ currentPost.createdAt }}</span>
+          <span class="text-muted col text-right font-italic">发表于：{{currentPost.createdAt}}</span>
       </div>
       <div v-html="currentPost.content">
       </div>
@@ -33,9 +26,11 @@ import MarkdownIt from 'markdown-it'
 import { defineComponent, onMounted, ref } from 'vue'
 import { GlobalDataProps } from '@/store'
 import axios from 'axios'
+import UserProfile from '@/components/UserProfile.vue'
 
 export default defineComponent({
   name: 'PostDetail',
+  components: { UserProfile },
   setup () {
     const store = useStore<GlobalDataProps>()
     const route = useRoute()
