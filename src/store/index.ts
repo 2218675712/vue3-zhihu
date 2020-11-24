@@ -39,7 +39,6 @@ export interface GlobalErrorProps {
   status: boolean;
   message?: string;
 }
-
 export interface GlobalDataProps {
   error: GlobalErrorProps;
   token: string;
@@ -111,7 +110,7 @@ export default createStore<GlobalDataProps>({
     fetchColumn (state, rawData) {
       state.columns = [rawData.data]
     },
-    fetchPost (state, rawData) {
+    fetchPosts (state, rawData) {
       state.posts = rawData.data.list
     },
     setLoading (state, status) {
@@ -135,7 +134,6 @@ export default createStore<GlobalDataProps>({
     getPostsByCId: (state) => (cid: string) => {
       return state.posts.filter(post => post.column === cid)
     }
-
   },
   // 用于异步
   actions: {
@@ -145,17 +143,14 @@ export default createStore<GlobalDataProps>({
     fetchColumn ({ commit }, cid) {
       return getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
-    fetchPost ({ commit }, cid) {
-      return getAndCommit(`/api/columns/${cid}/posts`, 'fetchPost', commit)
+    fetchPosts ({ commit }, cid) {
+      return getAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit)
     },
     fetchCurrentUser ({ commit }) {
       return getAndCommit('/api/user/current', 'fetchPostUser', commit)
     },
     login ({ commit }, payload) {
       return postAndCommit('/api/user/login', 'login', commit, payload)
-    },
-    createPost ({ commit }, payload) {
-      return postAndCommit('/api/posts', 'CreatePost', commit, payload)
     },
     loginAndFetch ({ dispatch }, loginData) {
       return dispatch('login', loginData).then(() => {

@@ -18,7 +18,7 @@
 <script lang="ts">
 import { useRoute } from 'vue-router'
 
-import PostList from '@/views/PostList.vue'
+import PostList from '@/components/PostList.vue'
 import { computed, defineComponent, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { ColumnProps, GlobalDataProps } from '@/store'
@@ -33,7 +33,7 @@ export default defineComponent({
     const currentId = route.params.id
     onMounted(() => {
       store.dispatch('fetchColumn', currentId)
-      store.dispatch('fetchPost', currentId)
+      store.dispatch('fetchPosts', currentId)
     })
     const column = computed(() => {
       const selectColumn = store.getters.getColumnById(currentId) as ColumnProps
