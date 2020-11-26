@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { UserProps } from '@/store'
-
+// todo 准备修改这个
 export default defineComponent({
   name: 'UserProfile',
   props: {

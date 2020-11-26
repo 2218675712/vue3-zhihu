@@ -32,13 +32,15 @@ export interface PostProps {
   image?: ImageProps|string;
   createdAt?: string;
   column: string;
-  author?: string;
+  author?: string|UserProps;
+  isHTML?: false;
 }
 
 export interface GlobalErrorProps {
   status: boolean;
   message?: string;
 }
+
 export interface GlobalDataProps {
   error: GlobalErrorProps;
   token: string;
@@ -113,6 +115,9 @@ export default createStore<GlobalDataProps>({
     fetchPosts (state, rawData) {
       state.posts = rawData.data.list
     },
+    fetchPost (state, rawData) {
+      state.posts = [rawData.data]
+    },
     setLoading (state, status) {
       state.loading = status
     },
@@ -133,6 +138,9 @@ export default createStore<GlobalDataProps>({
 
     getPostsByCId: (state) => (cid: string) => {
       return state.posts.filter(post => post.column === cid)
+    },
+    getCurrentPost: (state) => (id: string) => {
+      return state.posts.find(post => post._id === id)
     }
   },
   // 用于异步
@@ -145,6 +153,9 @@ export default createStore<GlobalDataProps>({
     },
     fetchPosts ({ commit }, cid) {
       return getAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit)
+    },
+    fetchPost ({ commit }, id) {
+      return getAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
     },
     fetchCurrentUser ({ commit }) {
       return getAndCommit('/api/user/current', 'fetchPostUser', commit)
