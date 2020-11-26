@@ -38,7 +38,6 @@ export default defineComponent({
     const currentId = route.params.id
     const md = new MarkdownIt()
     onMounted(() => {
-      // getCurrentPost()
       store.dispatch('fetchPost', currentId)
     })
     // const currentPost = computed<PostProps>(() => store.getters.getCurrentPost)

@@ -7,6 +7,7 @@ export interface UserProps {
   _id?: string;
   column?: string;
   email?: string;
+  avatar?: ImageProps;
 }
 
 export interface ImageProps {
