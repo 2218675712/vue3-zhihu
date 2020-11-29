@@ -168,6 +168,9 @@ export default createStore<GlobalDataProps>({
       return dispatch('login', loginData).then(() => {
         return dispatch('fetchCurrentUser')
       })
+    },
+    createPost ({ commit }, payload) {
+      return postAndCommit('/api/posts', 'CreatePost', commit, payload)
     }
   },
   modules: {}

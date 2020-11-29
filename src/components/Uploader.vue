@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+import { defineComponent, PropType, ref, watch } from 'vue'
 import axios from 'axios'
 
 type UploadStatus = 'ready' | 'loading' | 'success' | 'error'
@@ -33,14 +33,23 @@ export default defineComponent({
     },
     beforeUpload: {
       type: Function as PropType<CheckFunction>
+    },
+    uploaded: {
+      type: Object
     }
   },
   inheritAttrs: false,
   emits: ['file-uploaded', 'file-uploaded-error'],
   setup (props, context) {
     const fileInput = ref<null | HTMLInputElement>(null)
-    const fileStatus = ref<UploadStatus>('ready')
-    const uploadedData = ref()
+    const fileStatus = ref<UploadStatus>(props.uploaded ? 'success' : 'ready')
+    const uploadedData = ref(props.uploaded)
+    watch(() => props.uploaded, (newValue) => {
+      if (newValue) {
+        fileStatus.value = 'success'
+        uploadedData.value = newValue
+      }
+    })
     const triggerUpload = () => {
       // 如果有这个dom节点
       if (fileInput.value) {

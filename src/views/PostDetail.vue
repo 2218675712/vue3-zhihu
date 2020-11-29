@@ -13,7 +13,10 @@
       </div>
 <!--      <div class="btn-group mt-5">-->
       <div v-if="showEditArea">
-        <router-link type="button" class="btn btn-primary mx-2" to="/">编辑</router-link>
+        <router-link
+          type="button"
+          class="btn btn-primary mx-2"
+          :to="{name:'create',query:{id:currentPost._id}}">编辑</router-link>
         <button type="button" class="btn btn-danger mx-2" >删除</button>
       </div>
 <!--      </div>-->
@@ -40,7 +43,6 @@ export default defineComponent({
     onMounted(() => {
       store.dispatch('fetchPost', currentId)
     })
-    // const currentPost = computed<PostProps>(() => store.getters.getCurrentPost)
     const currentPost = computed<PostProps>(() => store.getters.getCurrentPost(currentId))
     const currentHTML = computed(() => {
       const { content, isHTML } = currentPost.value

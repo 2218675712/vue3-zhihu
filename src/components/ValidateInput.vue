@@ -5,7 +5,6 @@
       class="form-control"
       :class="{'is-invalid':inputRef.error}"
       v-model="inputRef.val"
-      @input="updateValue"
       @blur="validateInput"
       v-bind="$attrs"/>
     <textarea
@@ -13,7 +12,6 @@
       class="form-control"
       :class="{'is-invalid':inputRef.error}"
       v-model="inputRef.val"
-      @input="updateValue"
       @blur="validateInput"
       v-bind="$attrs"
       rows="10"></textarea>
@@ -25,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, reactive } from 'vue'
+import { computed, defineComponent, onMounted, PropType, reactive, watch } from 'vue'
 import { emitter } from './ValidateForm.vue'
 
 const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
@@ -54,20 +52,15 @@ export default defineComponent({
   setup (props, context) {
     const inputRef = reactive({
       // 获取父组件传递的默认值
-      val: props.modelValue || '',
+      val: computed({
+        get: () => props.modelValue || '',
+        set: val => {
+          context.emit('update:modelValue', val)
+        }
+      }),
       error: false,
       message: ''
     })
-    /**
-     * 双向数据绑定
-     * @param e 键盘事件
-     */
-    const updateValue = (e: KeyboardEvent) => {
-      const targetValue = (e.target as HTMLInputElement).value
-      inputRef.val = targetValue
-      // 向外面抛出事件
-      context.emit('update:modelValue', targetValue)
-    }
     const validateInput = () => {
       // 判断规则是否为空
       if (props.rules) {
@@ -104,8 +97,7 @@ export default defineComponent({
     })
     return {
       inputRef,
-      validateInput,
-      updateValue
+      validateInput
     }
   }
 })
