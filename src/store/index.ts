@@ -1,5 +1,5 @@
 import { ActionPayload, Commit, createStore } from 'vuex'
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 
 export interface UserProps {
   isLogin: boolean;
@@ -63,7 +63,7 @@ export interface ResponseType<P = {}> {
  * @param mutationName  mutation函数名
  * @param commit  提交类型
  */
-const getAndCommit = async (url: string, mutationName: string, commit: Commit) => {
+const asyncGetAndCommit = async (url: string, mutationName: string, commit: Commit) => {
   const { data } = await axios.get(url)
   commit(mutationName, data)
   return data
@@ -75,8 +75,20 @@ const getAndCommit = async (url: string, mutationName: string, commit: Commit) =
  * @param commit  提交类型
  * @param payload 请求参数
  */
-const postAndCommit = async (url: string, mutationName: string, commit: Commit, payload: ActionPayload) => {
+const asyncPostAndCommit = async (url: string, mutationName: string, commit: Commit, payload: ActionPayload) => {
   const { data } = await axios.post(url, payload)
+  commit(mutationName, data)
+  return data
+}
+/**
+ * 向mutations提交自定义请求方式数据
+ * @param url 请求url
+ * @param mutationName  mutation函数名
+ * @param commit  提交类型
+ * @param config  请求参数类型
+ */
+const asyncAndCommit = async (url: string, mutationName: string, commit: Commit, config: AxiosRequestConfig = { method: 'get' }) => {
+  const { data } = await axios(url, config)
   commit(mutationName, data)
   return data
 }
@@ -119,6 +131,15 @@ export default createStore<GlobalDataProps>({
     fetchPost (state, rawData) {
       state.posts = [rawData.data]
     },
+    updatePost (state, { data }) {
+      state.posts = state.posts.map(post => {
+        if (post._id === data._id) {
+          return data
+        } else {
+          return post
+        }
+      })
+    },
     setLoading (state, status) {
       state.loading = status
     },
@@ -147,22 +168,29 @@ export default createStore<GlobalDataProps>({
   // 用于异步
   actions: {
     fetchColumns ({ commit }) {
-      return getAndCommit('/api/columns', 'fetchColumns', commit)
+      return asyncGetAndCommit('/api/columns', 'fetchColumns', commit)
     },
     fetchColumn ({ commit }, cid) {
-      return getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
+      return asyncGetAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
     fetchPosts ({ commit }, cid) {
-      return getAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit)
+      return asyncGetAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit)
     },
     fetchPost ({ commit }, id) {
-      return getAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
+      return asyncGetAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
+    },
+    updatePost ({ commit }, { id, payload }) {
+      return asyncAndCommit(`/api/posts/${id}`, 'updatePost', commit, {
+        // patch是更新
+        method: 'patch',
+        data: payload
+      })
     },
     fetchCurrentUser ({ commit }) {
-      return getAndCommit('/api/user/current', 'fetchPostUser', commit)
+      return asyncGetAndCommit('/api/user/current', 'fetchPostUser', commit)
     },
     login ({ commit }, payload) {
-      return postAndCommit('/api/user/login', 'login', commit, payload)
+      return asyncPostAndCommit('/api/user/login', 'login', commit, payload)
     },
     loginAndFetch ({ dispatch }, loginData) {
       return dispatch('login', loginData).then(() => {
@@ -170,7 +198,7 @@ export default createStore<GlobalDataProps>({
       })
     },
     createPost ({ commit }, payload) {
-      return postAndCommit('/api/posts', 'CreatePost', commit, payload)
+      return asyncPostAndCommit('/api/posts', 'CreatePost', commit, payload)
     }
   },
   modules: {}
