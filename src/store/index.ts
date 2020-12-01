@@ -150,6 +150,9 @@ export default createStore<GlobalDataProps>({
       state.token = ''
       localStorage.removeItem('token')
       delete axios.defaults.headers.common.Authorization
+    },
+    deletePost (state, { data }) {
+      state.posts = state.posts.filter(post => post._id !== data._id)
     }
   },
   getters: {
@@ -198,7 +201,10 @@ export default createStore<GlobalDataProps>({
       })
     },
     createPost ({ commit }, payload) {
-      return asyncPostAndCommit('/api/posts', 'CreatePost', commit, payload)
+      return asyncPostAndCommit('/api/posts', 'createPost', commit, payload)
+    },
+    deletePost ({ commit }, id) {
+      return asyncAndCommit(`/api/posts/${id}`, 'deletePost', commit, { method: 'delete' })
     }
   },
   modules: {}
