@@ -36,7 +36,7 @@ export default defineComponent({
       store.dispatch('fetchPosts', currentId)
     })
     const column = computed(() => {
-      const selectColumn = store.getters.getColumnById(currentId) as ColumnProps
+      const selectColumn = store.getters.getColumnById(currentId) as ColumnProps|undefined
       if (selectColumn) {
         generateFitUrl(selectColumn, 100, 100)
       }

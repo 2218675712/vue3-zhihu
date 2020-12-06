@@ -1,6 +1,11 @@
 import { ActionPayload, Commit, createStore } from 'vuex'
 import axios, { AxiosRequestConfig } from 'axios'
-
+import { arrToObj, objToArr } from '@/helper'
+export interface ResponseType<P = {}> {
+  code: number;
+  msg: string;
+  data: P;
+}
 export interface UserProps {
   isLogin: boolean;
   nickName?: string;
@@ -8,6 +13,7 @@ export interface UserProps {
   column?: string;
   email?: string;
   avatar?: ImageProps;
+  description?: string;
 }
 
 export interface ImageProps {
@@ -24,19 +30,35 @@ export interface ColumnProps {
   avatar?: ImageProps;
   description: string;
 }
+/*
 
 export interface PostProps {
   _id?: string;
   title: string;
   excerpt?: string;
   content?: string;
-  image?: ImageProps|string;
+  image?: ImageProps | string;
   createdAt?: string;
   column: string;
-  author?: string|UserProps;
-  isHTML?: false;
+  author?: string | UserProps;
+  isHTML?: boolean;
 }
+*/
 
+export interface PostProps {
+  _id?: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  image?: ImageProps | string;
+  createdAt?: string;
+  column?: string;
+  author?: string | UserProps;
+  isHTML?: boolean;
+}
+interface ListProps<P> {
+  [id: string]: P;
+}
 export interface GlobalErrorProps {
   status: boolean;
   message?: string;
@@ -45,40 +67,12 @@ export interface GlobalErrorProps {
 export interface GlobalDataProps {
   error: GlobalErrorProps;
   token: string;
-  columns: ColumnProps[];
-  posts: PostProps[];
+  columns: { data: ListProps<ColumnProps>; isLoaded: boolean};
+  // posts: { data: ListProps<PostProps>; loadedColumns: string[]};
+  posts: { data: ListProps<PostProps>; loadedColumns: string[] };
+
   user: UserProps;
   loading: boolean;
-}
-
-export interface ResponseType<P = {}> {
-  code: number;
-  msg: string;
-  data: P;
-}
-
-/**
- * 获取并向mutations提交get数据
- * @param url 链接url
- * @param mutationName  mutation函数名
- * @param commit  提交类型
- */
-const asyncGetAndCommit = async (url: string, mutationName: string, commit: Commit) => {
-  const { data } = await axios.get(url)
-  commit(mutationName, data)
-  return data
-}
-/**
- * 向mutations提交post数据
- * @param url 链接url
- * @param mutationName  mutation函数名
- * @param commit  提交类型
- * @param payload 请求参数
- */
-const asyncPostAndCommit = async (url: string, mutationName: string, commit: Commit, payload: ActionPayload) => {
-  const { data } = await axios.post(url, payload)
-  commit(mutationName, data)
-  return data
 }
 /**
  * 向mutations提交自定义请求方式数据
@@ -86,10 +80,16 @@ const asyncPostAndCommit = async (url: string, mutationName: string, commit: Com
  * @param mutationName  mutation函数名
  * @param commit  提交类型
  * @param config  请求参数类型
+ * @param extraData 参数
  */
-const asyncAndCommit = async (url: string, mutationName: string, commit: Commit, config: AxiosRequestConfig = { method: 'get' }) => {
+const asyncAndCommit = async (url: string, mutationName: string,
+  commit: Commit, config: AxiosRequestConfig = { method: 'get' }, extraData?: any) => {
   const { data } = await axios(url, config)
-  commit(mutationName, data)
+  if (extraData) {
+    commit(mutationName, { data, extraData })
+  } else {
+    commit(mutationName, data)
+  }
   return data
 }
 export default createStore<GlobalDataProps>({
@@ -97,8 +97,8 @@ export default createStore<GlobalDataProps>({
     error: { status: false },
     token: localStorage.getItem('token') || '',
     loading: false,
-    columns: [],
-    posts: [],
+    columns: { data: {}, isLoaded: false },
+    posts: { data: {}, loadedColumns: [] },
     user: {
       isLogin: false
     }
@@ -117,28 +117,24 @@ export default createStore<GlobalDataProps>({
       }
     },
     createPost (state, newPost) {
-      state.posts.push(newPost)
+      state.posts.data[newPost._id] = newPost
     },
     fetchColumns (state, rawData) {
-      state.columns = rawData.data.list
+      state.columns.data = arrToObj(rawData.data.list)
+      state.columns.isLoaded = true
     },
     fetchColumn (state, rawData) {
-      state.columns = [rawData.data]
+      state.columns.data[rawData.data._id] = rawData.data
     },
-    fetchPosts (state, rawData) {
-      state.posts = rawData.data.list
+    fetchPosts (state, { data: rawData, extraData: columnId }) {
+      state.posts.data = { ...state.posts.data, ...arrToObj(rawData.data.list) }
+      state.posts.loadedColumns.push(columnId)
     },
     fetchPost (state, rawData) {
-      state.posts = [rawData.data]
+      state.posts.data[rawData.data._id] = rawData.data
     },
     updatePost (state, { data }) {
-      state.posts = state.posts.map(post => {
-        if (post._id === data._id) {
-          return data
-        } else {
-          return post
-        }
-      })
+      state.posts.data[data._id] = data
     },
     setLoading (state, status) {
       state.loading = status
@@ -149,38 +145,53 @@ export default createStore<GlobalDataProps>({
     logout (state) {
       state.token = ''
       localStorage.removeItem('token')
+      state.user = { isLogin: false }
       delete axios.defaults.headers.common.Authorization
     },
     deletePost (state, { data }) {
-      state.posts = state.posts.filter(post => post._id !== data._id)
+      // state.posts = state.posts.filter(post => post._id !== data._id)
+      delete state.posts.data[data._id]
     }
   },
   getters: {
-
+    getColumns: (state) => {
+      return objToArr(state.columns.data)
+    },
     getColumnById: (state) => (id: string) => {
-      return state.columns.find(c => c._id === id)
+      return state.columns.data[id]
     },
 
     getPostsByCId: (state) => (cid: string) => {
-      return state.posts.filter(post => post.column === cid)
+      return objToArr(state.posts.data).filter(post => post.column === cid)
     },
     getCurrentPost: (state) => (id: string) => {
-      return state.posts.find(post => post._id === id)
+      return state.posts.data[id]
     }
   },
   // 用于异步
   actions: {
-    fetchColumns ({ commit }) {
-      return asyncGetAndCommit('/api/columns', 'fetchColumns', commit)
+    fetchColumns ({ state, commit }) {
+      if (!state.columns.isLoaded) {
+        return asyncAndCommit('/api/columns', 'fetchColumns', commit)
+      }
     },
-    fetchColumn ({ commit }, cid) {
-      return asyncGetAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
+    fetchColumn ({ state, commit }, cid) {
+      if (!state.columns.data[cid]) {
+        return asyncAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
+      }
     },
-    fetchPosts ({ commit }, cid) {
-      return asyncGetAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit)
+    fetchPosts ({ state, commit }, cid) {
+      if (!state.posts.loadedColumns.includes(cid)) {
+        return asyncAndCommit(`/api/columns/${cid}/posts`, 'fetchPosts', commit, { method: 'get' }, cid)
+      }
     },
-    fetchPost ({ commit }, id) {
-      return asyncGetAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
+    fetchPost ({ state, commit }, id) {
+      const currentPost = state.posts.data[id]
+      if (!currentPost || !currentPost.content) {
+        return asyncAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
+      } else {
+        return Promise.resolve({ data: currentPost })
+      }
     },
     updatePost ({ commit }, { id, payload }) {
       return asyncAndCommit(`/api/posts/${id}`, 'updatePost', commit, {
@@ -190,10 +201,13 @@ export default createStore<GlobalDataProps>({
       })
     },
     fetchCurrentUser ({ commit }) {
-      return asyncGetAndCommit('/api/user/current', 'fetchPostUser', commit)
+      return asyncAndCommit('/api/user/current', 'fetchPostUser', commit)
     },
     login ({ commit }, payload) {
-      return asyncPostAndCommit('/api/user/login', 'login', commit, payload)
+      return asyncAndCommit('/api/user/login', 'login', commit, {
+        method: 'post',
+        data: payload
+      })
     },
     loginAndFetch ({ dispatch }, loginData) {
       return dispatch('login', loginData).then(() => {
@@ -201,7 +215,10 @@ export default createStore<GlobalDataProps>({
       })
     },
     createPost ({ commit }, payload) {
-      return asyncPostAndCommit('/api/posts', 'createPost', commit, payload)
+      return asyncAndCommit('/api/posts', 'createPost', commit, {
+        method: 'post',
+        data: payload
+      })
     },
     deletePost ({ commit }, id) {
       return asyncAndCommit(`/api/posts/${id}`, 'deletePost', commit, { method: 'delete' })

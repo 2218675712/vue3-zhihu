@@ -18,5 +18,11 @@ module.exports = {
     'plugin:vue/essential',
     '@vue/standard',
     '@vue/typescript/recommended'
+  ],
+
+  'extends': [
+    'plugin:vue/essential',
+    '@vue/standard',
+    '@vue/typescript/recommended'
   ]
 }
