@@ -22,7 +22,7 @@
             <a href="#" class="dropdown-item">编辑资料</a>
           </drop-down-item>
           <drop-down-item>
-            <a href="#" class="dropdown-item">退出登录</a>
+            <a href="#" class="dropdown-item" @click="logout">退出登录</a>
           </drop-down-item>
         </drop-down>
       </li>
@@ -34,7 +34,9 @@
 import { defineComponent, PropType } from 'vue'
 import DropDown from '@/components/DropDown.vue'
 import DropDownItem from '@/components/DropDownItem.vue'
-import { UserProps } from '@/store'
+import { GlobalDataProps, UserProps } from '@/store'
+import { useStore } from 'vuex'
+import createMessage from '@/components/createMessage'
 
 export default defineComponent({
   name: 'GlobalHeader',
@@ -43,6 +45,16 @@ export default defineComponent({
     user: {
       type: Object as PropType<UserProps>,
       required: true
+    }
+  },
+  setup () {
+    const store = useStore<GlobalDataProps>()
+    const logout = () => {
+      store.commit('logout')
+      createMessage('退出登录成功，2秒后跳转到首页', 'success')
+    }
+    return {
+      logout
     }
   }
 
